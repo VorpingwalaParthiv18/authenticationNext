@@ -37,12 +37,13 @@ export async function POST(request: NextRequest) {
 
     const newTodo = new Todo({
       title,
+      id: new Date().getTime().toString(),
       createdBy: user._id,
     });
 
     await newTodo.save();
     return NextResponse.json(
-      { message: "Todo saved successfully" },
+      { message: "Todo saved successfully",todo: newTodo },
       { status: 200 },
     );
   } catch (error) {
@@ -83,4 +84,109 @@ export async function GET() {
       { status: 500 },
     );
   }
+}
+
+export async function PATCH(request: NextRequest) {
+  // Implement update functionality here
+  try{
+    await dbConnect();
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if(!token){
+      return NextResponse.json({message:"Unauthorized"},{status:401});
+    }
+
+    const verfiyToken =  jwt.verify(
+      token,process.env.JWT_SECRET || "your-secret-key") as { userId: string };
+
+      // console.log(verifyToken);
+    const user = await  User.findById(verfiyToken?.userId).select("-password");
+
+    if(!user){
+      return NextResponse.json(
+        {message:"unAuthorized "  },
+        {status : 401}
+    )
+    }
+    const {id, title} = await request.json();
+
+    if(!title){
+      return NextResponse.json(
+        {message:"Title is required"},
+        {status:400}
+      )
+    }
+    const updatedTodo  = await Todo.findOneAndUpdate({id}, {title}, {new:true});
+    
+    if(!updatedTodo){
+      return NextResponse.json(
+        {message:"Todo not found"},
+        {status:404}
+      )
+    }
+
+    updatedTodo.save();
+    return NextResponse.json(
+      {message:"Todo updated successfully"},
+      {status:200}
+    )
+
+  }
+  catch(error: any){
+    console.error("Error in Todo route:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error",error: error.message  },
+      { status: 500 },
+    );
+ 
+  }
+  
+}
+
+export async function DELETE(request: NextRequest) {
+  // Implement delete functionality here
+  try{
+    await dbConnect();
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if(!token){
+      return NextResponse.json({message:"Unauthorized"},{status:401});
+    }
+    const verfiyToken =  jwt.verify(
+      token,process.env.JWT_SECRET || "your-secret-key") as { userId: string };
+
+      const user = await User.findById(verfiyToken?.userId).select("-password");
+    if(!user){
+      return NextResponse.json(
+        {message:"unAuthorized "  },
+        {status : 401}
+    )
+    }
+
+    const {id} = await request.json();
+
+    const deletedTodo = await Todo.findOneAndDelete({id});
+    console.log("Deleted todo:", deletedTodo);
+    if(!deletedTodo){
+      return NextResponse.json(
+        {message:"Todo not found"},
+        {status:404}
+      )
+    }
+    deletedTodo.save();
+    return NextResponse.json(
+      {message:"Todo deleted successfully"},
+      {status:200}
+    )
+
+  }
+  catch(error: any){
+    console.error("Error in Todo route:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error",error: error.message  },
+      { status: 500 },
+    );
+}
 }
