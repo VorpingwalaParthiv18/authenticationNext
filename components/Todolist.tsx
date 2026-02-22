@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 
 interface Todo {
   _id: string;
   title: string;
   description?: string;
   completed: boolean;
+  id: string
 }
 
 const Todolist = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const [data, setData] = useState<Todo[]>([]);
+  const [editId, setEditId] = useState<string>("");
+  const [editedTitle, setEditedTitle] = useState<string>("");
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -20,51 +24,76 @@ const Todolist = ({ refreshTrigger }: { refreshTrigger: number }) => {
     fetchTodos();
   }, [refreshTrigger]);
 
-  //   const handleToggleComplete = async (id: string, completed: boolean) => {
-  //     try {
-  //       await fetch(`api/Todo/${id}`, {
-  //         method: "PATCH",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ completed: !completed }),
-  //       });
-  //       // Update local state
-  //       setData(
-  //         data.map((todo) =>
-  //           todo._id === id ? { ...todo, completed: !completed } : todo,
-  //         ),
-  //       );
-  //     } catch (error) {
-  //       console.error("Error updating todo:", error);
-  //     }
-  //   };
+  const toggleEdit = (id: string, currentTitle: string) => {
+    setEditId((prev) => (prev === id ? "" : id));
+    setEditedTitle(currentTitle);
+  };
 
-  //   const handleDelete = async (id: string) => {
-  //     try {
-  //       await fetch(`api/Todo/${id}`, { method: "DELETE" });
-  //       setData(data.filter((todo) => todo._id !== id));
-  //     } catch (error) {
-  //       console.error("Error deleting todo:", error);
-  //     }
-  //   };
+  const handleEdit = async (id: string) => {
+    
+    
+    // Implement edit functionality here
+   try{
 
-  //   const handleEdit = (id: string) => {
-  //     // You can implement edit functionality here
-  //     console.log("Edit todo:", id);
-  //   };
+     const response = await fetch(`api/Todo`, {method:"PATCH",
+      body: JSON.stringify({ id, title: editedTitle }),
+      headers:{"Content-Type":"application/json"}
+    });
+    const newdata = await response.json();
+    
+    // if(!newdata){
+    //   console.log("Failed to update todo");
+    //   return;
+    // }
+      toast.success(newdata.message);
+      setData((prevData) =>
+        prevData.map((todo) =>
+          todo.id === id ? { ...todo, title: editedTitle } : todo
+        )
+      );
+      setEditId("");
+   
+  }
+  catch(error : any){
+    toast.error("Failed to update todo",error);
+}
+  }
+
+ const handleDelete = async (id: string) => {
+    console.log("Deleting todo with id:", id);
+    try{
+      const response = await fetch('api/Todo', {
+        method: "DELETE",
+        body: JSON.stringify({ id }),  // Add this
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await response.json();
+
+      if(!data){
+        toast.error("Failed to delete todo");
+        return;
+      }
+
+      toast.success("deleted successfully");
+      setData((prevData) => prevData.filter((todo) => todo.id !== id));
+    }
+    catch(error: any){
+      toast.error(error);
+    }
+}
 
   return (
     <div className="space-y-3 p-4">
       {data.map((todo) => (
         <div
-          key={todo._id}
+          key={todo.id}
           className="flex items-center justify-between bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
         >
           {/* Left side - Checkbox and Title */}
           <div className="flex items-center gap-3 flex-1">
             <input
               type="checkbox"
-              //   checked={todo.completed}
-              //   onChange={() => handleToggleComplete(todo._id, todo.completed)}
+              onClick={() => toggleEdit(todo.id, todo.title)}
               className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
             <div className="flex flex-col">
@@ -75,13 +104,16 @@ const Todolist = ({ refreshTrigger }: { refreshTrigger: number }) => {
                     : "text-gray-800"
                 }`}
               >
-                {todo.title}
+
+                {
+                editId === todo.id ? 
+                <input type="text" value={editedTitle} onChange={(e) => setEditedTitle(e.target.value)} className="w-300 border border-gray-300 rounded-lg px-2 py-1" />
+                  :(
+                    <span>{todo.title}</span>
+                  ) 
+              }
               </span>
-              {todo.description && (
-                <span className="text-sm text-gray-500">
-                  {todo.description}
-                </span>
-              )}
+              
             </div>
           </div>
 
@@ -89,9 +121,10 @@ const Todolist = ({ refreshTrigger }: { refreshTrigger: number }) => {
           <div className="flex gap-2">
             {/* Edit button */}
             <button
-              //   onClick={() => handleEdit(todo._id)}
+             
               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               title="Edit todo"
+              onClick={() => handleEdit(todo.id)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -111,9 +144,10 @@ const Todolist = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
             {/* Delete button */}
             <button
-              //   onClick={() => handleDelete(todo._id)}
+             
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               title="Delete todo"
+              onClick={()=>handleDelete(todo.id)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -130,6 +164,7 @@ const Todolist = ({ refreshTrigger }: { refreshTrigger: number }) => {
                 />
               </svg>
             </button>
+            <ToastContainer/>
           </div>
         </div>
       ))}
