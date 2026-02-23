@@ -7,13 +7,21 @@ import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import Link from "next/link";
 import { validatorSchema } from "@/lib/validators/password";
+import Navbar from "@/components/Navbar";
 
 type FieldErrors = {
   firstName?: string;
   lastName?: string;
   email?: string;
   password?: string;
+  role?: string;
 };
+const ROLE_VALUES = [
+  { id: "", value: "Select Role" },
+  { id: "superadmin", value: "SuperAdmin" },
+  { id: "admin", value: "Admin" },
+  { id: "user", value: "User" },
+];
 
 const Page = () => {
   const [email, setEmail] = useState("");
@@ -21,6 +29,7 @@ const Page = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [role, setRole] = useState("");
   const router = useRouter();
 
   const validateForm = (): boolean => {
@@ -29,6 +38,7 @@ const Page = () => {
       lastName,
       email,
       password,
+      role,
     });
     console.log("Validation result:", result);
 
@@ -61,7 +71,7 @@ const Page = () => {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password }),
+        body: JSON.stringify({ firstName, lastName, email, password, role }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -81,6 +91,7 @@ const Page = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+      <Navbar />
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
@@ -118,6 +129,25 @@ const Page = () => {
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
+            </div>
+            <div>
+              <select
+                // placeholder="Enter Your role"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 transition duration-200 text-black"
+                onChange={(e) => setRole(e.target.value)}
+                value={role}
+              >
+                {ROLE_VALUES.map((r, index) => {
+                  return (
+                    <option key={index} value={r.id}>
+                      {r.value}
+                    </option>
+                  );
+                })}
+              </select>
+              {errors.role && (
+                <p className="text-red-500 text-sm mt-1">{errors.role}</p>
               )}
             </div>
             <div>

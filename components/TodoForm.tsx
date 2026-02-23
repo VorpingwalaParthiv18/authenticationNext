@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Todolist from "./Todolist";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { set } from "mongoose";
 
 const TodoForm = () => {
@@ -17,12 +17,14 @@ const TodoForm = () => {
     });
     const data = await response.json();
     console.log("Response from server:", data);
+    if (response.ok) {
+      toast.success(data.message);
+      console.log("Todo saved successfully:", data);
+    }
     // if (data.ok) {
-    toast.success(data.message);
-    console.log("Todo saved successfully:", data);
-    // } else {
-    //   toast.error(data.error || "Failed to save todo");
-    // }
+    else {
+      toast.error(data.message);
+    }
     setInput("");
     setRefreshTrigger((prev) => prev + 1);
   };
@@ -47,7 +49,6 @@ const TodoForm = () => {
         </div>
       </div>
       <Todolist refreshTrigger={refreshTrigger} />
-      <ToastContainer />
     </>
   );
 };
