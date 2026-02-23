@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const todoSchema = new mongoose.Schema(
   {
-    id:{
+    id: {
       type: String,
       required: true,
     },
@@ -17,6 +17,11 @@ const todoSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+    createdRoleLevel: {
+      type: mongoose.Schema.Types.Number,
+      ref: "User",
+      // required: true,
     },
   },
   { timestamps: true },

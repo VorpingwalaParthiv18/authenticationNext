@@ -6,6 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Navbar from "@/components/Navbar";
 
 const Page = () => {
   const router = useRouter();
@@ -34,46 +35,49 @@ const Page = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-50 to-indigo-100">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          Sign Up
-        </h1>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <Input
-              type="email"
-              placeholder="Enter Your Email"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
-          </div>
-          <div>
-            <Input
-              type="password"
-              placeholder="Enter Your Password"
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-            />
-          </div>
-          <InputButton type="submit" text="Sign In" />
-          <p className="text-black">
-            don&apos;t have an account already{" "}
-            <Link href="/sign-up" className="text-blue-900">
-              Sign Up
-            </Link>
-          </p>
-          <div>
-            <button
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-            >
-              Sign in with Google
-            </button>
-          </div>
-          <ToastContainer />
-        </form>
+    <>
+      <Navbar />
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-50 to-indigo-100">
+        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+            Sign Up
+          </h1>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <Input
+                type="email"
+                placeholder="Enter Your Email"
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+              />
+            </div>
+            <div>
+              <Input
+                type="password"
+                placeholder="Enter Your Password"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+              />
+            </div>
+            <InputButton type="submit" text="Sign In" />
+            <p className="text-black">
+              don&apos;t have an account already{" "}
+              <Link href="/sign-up" className="text-blue-900">
+                Sign Up
+              </Link>
+            </p>
+            <div>
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+              >
+                Sign in with Google
+              </button>
+            </div>
+            <ToastContainer />
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 export default Page;
