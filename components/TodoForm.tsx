@@ -3,14 +3,14 @@ import Todolist from "./Todolist";
 import { toast } from "react-toastify";
 import { set } from "mongoose";
 
-const TodoForm = () => {
+const TodoForm = ({ id }: { id: string }) => {
   //   const [todo, setTodo] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch("/api/Todo", {
+    const response = await fetch(`/api/Todo/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: input }),
@@ -48,7 +48,7 @@ const TodoForm = () => {
           </button>
         </div>
       </div>
-      <Todolist refreshTrigger={refreshTrigger} />
+      <Todolist refreshTrigger={refreshTrigger} id={id} />
     </>
   );
 };

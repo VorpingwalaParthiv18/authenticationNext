@@ -11,41 +11,35 @@ export default function Dashboard() {
     lastName: string;
     email: string;
     role: string;
+    roleLevel: number;
   }
   const router = useRouter();
   const [data, setData] = useState<userList[]>([]);
-  // const [currentUser, setCurrentUser] = useState<userList | null>(null);
-  // const [selectedUserId, setSelectedUserId] = useState<string>("");
-
-  // useEffect(() => {
-  //   const fetchCurrentUser = async () => {
-  //     const response = await fetch("/api/auth/register", {
-  //       method: "GET",
-  //       headers: { "Content-Type": "application/json" },
-  //     });
-  //     const userData = await response.json();
-  //     setCurrentUser(userData.user);
-  //   };
-  //   fetchCurrentUser();
-  // }, []);
+  const [currentUser, setCurrentUser] = useState<userList | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   useEffect(() => {
-    // if (currentUser?.role === "superadmin") {
-    const fetchUser = async () => {
-      const response = await fetch("/api/auth/register", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await response.json();
-      console.log("Fetched users:", data);
-      setData(data.users);
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("/api/auth/register", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        const userData = await response.json();
+        console.log("Current user data:", userData);
+        setCurrentUser(userData.currentUser);
+        setData(userData.users || []);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     };
-    fetchUser();
+    fetchCurrentUser();
   }, []);
 
-  // const handleClick = (email: string) => {
-  //   setSelectedUserId(email);
-  // };
+  const handleClick = (email: string) => {
+    setSelectedUserId(email);
+    router.push(`/dashboard/${email}`);
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -64,27 +58,28 @@ export default function Dashboard() {
       <div>
         <h1 className="text-3xl font-bold mb-4">Welcome to the Dashboard</h1>
 
-        {/* {data.map((user) => {
-          return (
-            <div
-              key={user.email}
-              onClick={(e) => handleClick(user.email)}
-              className={`p-4 rounded-lg mb-2 cursor-pointer transition-colors ${
-                selectedUserId === user.email
-                  ? "bg-blue-200 border-2 border-blue-500"
-                  : "bg-gray-100 hover:bg-gray-200"
-              }`}
-            >
-              <h2 className="text-xl font-semibold">
-                {user.firstName} {user.lastName}
-              </h2>
-              <p className="text-gray-600">{user.email}</p>
-              <p className="text-gray-600">Role: {user.role}</p>
-            </div>
-          );
-        })} */}
-        {/* {selectedUserId && <TodoForm id={selectedUserId} />} */}
-        <TodoForm />
+        {currentUser?.roleLevel == 3 &&
+          data.map((user) => {
+            return (
+              <div
+                key={user.email}
+                onClick={(e) => handleClick(user.email)}
+                className={`p-4 rounded-lg mb-2 cursor-pointer transition-colors ${
+                  selectedUserId === user.email
+                    ? "bg-blue-200 border-2 border-blue-500"
+                    : "bg-gray-100 hover:bg-gray-200"
+                }`}
+              >
+                <h2 className="text-xl font-semibold">
+                  {user.firstName} {user.lastName}
+                </h2>
+                <p className="text-gray-600">{user.email}</p>
+                <p className="text-gray-600">Role: {user.role}</p>
+              </div>
+            );
+          })}
+        {selectedUserId && <TodoForm id={selectedUserId} />}
+        {!selectedUserId && <TodoForm id="" />}
       </div>
     </div>
   );

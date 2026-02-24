@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     // Log the error for debugging purposes
     console.error("Error during user registration:", error);
     return NextResponse.json(
-      { message: "Internal server error", error: error.message },
+      { message: "Internal server error", error: error },
       { status: 500 },
     );
   }
@@ -79,28 +79,24 @@ export async function GET() {
       process.env.JWT_SECRET || "your-secret-key",
     ) as { userId: string };
 
-    const user = await User.findById(decode.userId, {}).select("-password");
+    const user = await User.findById(decode.userId).select("-password");
 
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    let users;
     if (user.roleLevel === 3) {
-      const users = await User.find({ role: { $ne: "superadmin" } }).select(
-        "-password",
-      );
-      if (!users || users.length === 0) {
-        return NextResponse.json(
-          {
-            message: "Users are not available",
-          },
-          { status: 404 },
-        );
-      }
-      return NextResponse.json(
-        {
-          users,
-          message: "Users fetched successfully",
-        },
-        { status: 200 },
-      );
+      // Superadmin sees all users except themselves
+      users = await User.find({ _id: { $ne: user._id } }).select("-password");
+    } else if (user.roleLevel === 2) {
+      // Admin sees non-superadmin users
+      users = await User.find({
+        role: { $ne: "superadmin" },
+        _id: { $ne: user._id },
+      }).select("-password");
     } else {
+      // Regular users don't see user list
       return NextResponse.json(
         {
           message: "You are not authorized to access this resource",
@@ -108,10 +104,29 @@ export async function GET() {
         { status: 403 },
       );
     }
+
+    if (!users || users.length === 0) {
+      return NextResponse.json(
+        {
+          users: [],
+          message: "No users available",
+        },
+        { status: 200 },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        users,
+        currentUser: user,
+        message: "Users fetched successfully",
+      },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
-      { message: "Internal server error", error: error.message },
+      { message: "Internal server error", error: (error as Error).message },
       { status: 500 },
     );
   }

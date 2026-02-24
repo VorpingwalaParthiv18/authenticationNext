@@ -83,8 +83,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // const todos = await Todo.find({ createdBy: user._id });
-    const todos = await Todo.find();
+    const todos = await Todo.find({ createdBy: user._id });
+    // const todos = await Todo.find();
     return NextResponse.json({ todos }, { status: 200 });
   } catch (error) {
     console.error("Error in Todo route:", error);

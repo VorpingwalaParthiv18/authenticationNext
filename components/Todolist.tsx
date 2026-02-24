@@ -9,17 +9,28 @@ interface Todo {
   id: string;
 }
 
-const Todolist = ({ refreshTrigger }: { refreshTrigger: number }) => {
+const Todolist = ({
+  refreshTrigger,
+  id,
+}: {
+  refreshTrigger: number;
+  id: string;
+}) => {
   const [data, setData] = useState<Todo[]>([]);
   const [editId, setEditId] = useState<string>("");
   const [editedTitle, setEditedTitle] = useState<string>("");
 
   useEffect(() => {
     const fetchTodos = async () => {
-      const response = await fetch("api/Todo", { method: "GET" });
-      const data = await response.json();
-      console.log("Fetched todos:", data);
-      setData(data.todos);
+      try {
+        const response = await fetch(`/api/Todo/${id}`, { method: "GET" });
+        const data = await response.json();
+        console.log("Fetched todos:", data);
+        setData(data.todos || []);
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+        setData([]);
+      }
     };
     fetchTodos();
   }, [refreshTrigger]);
