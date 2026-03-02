@@ -83,8 +83,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // const todos = await Todo.find({ createdBy: user._id });
-    const todos = await Todo.find();
+    const todos = await Todo.find({ createdBy: user._id });
+    // const todos = await Todo.find();
     return NextResponse.json({ todos }, { status: 200 });
   } catch (error) {
     console.error("Error in Todo route:", error);
@@ -160,7 +160,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   // Implement delete functionality here
   try {
-    await dbConnect();
+    await dbConnect();  
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -184,8 +184,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { id } = await request.json();
-
-    const deletedTodo = await Todo.findOneAndDelete({ id });
+    const deletedTodo = await Todo.findOneAndDelete({
+      id,
+    });
     console.log("Deleted todo:", deletedTodo);
     if (!deletedTodo) {
       return NextResponse.json({ message: "Todo not found" }, { status: 404 });

@@ -6,7 +6,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import Navbar from "@/components/Navbar";
 
 const Page = () => {
   const router = useRouter();
@@ -36,11 +35,10 @@ const Page = () => {
 
   return (
     <>
-      <Navbar />
       <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-50 to-indigo-100">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-            Sign Up
+            Sign In
           </h1>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
