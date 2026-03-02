@@ -160,7 +160,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   // Implement delete functionality here
   try {
-    await dbConnect();
+    await dbConnect();  
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -184,8 +184,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { id } = await request.json();
-
-    const deletedTodo = await Todo.findOneAndDelete({ id });
+    const deletedTodo = await Todo.findOneAndDelete({
+      id,
+    });
     console.log("Deleted todo:", deletedTodo);
     if (!deletedTodo) {
       return NextResponse.json({ message: "Todo not found" }, { status: 404 });

@@ -31,14 +31,19 @@ const TodoForm = ({ id }: { id: string }) => {
   return (
     <>
       <div>
-        <label htmlFor="Todos">Add a new todo:</label>
+        <label
+          htmlFor="Todos"
+          className="text-white pb-6 text-lg font-semibold"
+        >
+          Add a new todo:
+        </label>
         <br />
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 border-black rounded-lg ">
           <input
             type="text"
             onChange={(e) => setInput(e.target.value)}
             value={input}
-            className="bg-white p-2 rounded-lg shadow-md w-100 text-black"
+            className="bg-white p-2 rounded-lg shadow-md w-100 text-black border-2 border-gray-800"
           />
           <button
             onClick={handleSubmit}

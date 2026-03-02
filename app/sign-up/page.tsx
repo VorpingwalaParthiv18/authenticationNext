@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import Link from "next/link";
 import { validatorSchema } from "@/lib/validators/password";
-import Navbar from "@/components/Navbar";
 
 type FieldErrors = {
   firstName?: string;
@@ -91,7 +90,6 @@ const Page = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Navbar />
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
